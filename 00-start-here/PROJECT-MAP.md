@@ -98,14 +98,23 @@
 
 ## `02-writing-system/`
 
-### `PRIMARY-WORK-INSTRUCTION.md`
-Главная рабочая инструкция проекта.
+### `WORKING-METHOD-V2.md`
+Актуальный короткий метод работы.
 
 Фиксирует:
-- что такое работа над главой;
-- почему один проход = это целый рекурсивный цикл;
-- как именно доводить текст до результата;
-- как применять четверную проверку и повторять цикл, пока глава не дотянута.
+- приоритет автора, канона, живой сцены и плана;
+- сборку главы из шести рабочих блоков;
+- режим близкого POV;
+- порядок сборки и редакции.
+
+### `AUTHOR-VOICE-AND-EXAMPLES.md`
+Как использовать реальные авторские правки и примеры без механической имитации.
+
+### `ANTI-CLICHE-EDITORIAL-CHECK.md`
+Содержательная анти-ИИ-проверка после черновика.
+
+### Старые методические файлы
+`PRIMARY-WORK-INSTRUCTION.md`, `HARD-BLOCKERS.md`, `VOICE-SYSTEM.md`, `WORKFLOW-AND-QUALITY-GATE.md` и шаблоны сохранены как история решений и справочный материал. Они не являются обязательным протоколом.
 
 ### `HARD-BLOCKERS.md`
 Короткий жёсткий закон проекта.
@@ -202,10 +211,9 @@
 - `01-canon/PROJECT-STATUS.md`
 
 ### Главная рабочая система
-- `02-writing-system/PRIMARY-WORK-INSTRUCTION.md`
-- `02-writing-system/HARD-BLOCKERS.md`
-- `02-writing-system/VOICE-SYSTEM.md`
-- `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
+- `02-writing-system/WORKING-METHOD-V2.md`
+- `02-writing-system/AUTHOR-VOICE-AND-EXAMPLES.md`
+- `02-writing-system/ANTI-CLICHE-EDITORIAL-CHECK.md`
 
 ### Главная рукопись
 - `03-manuscript/arc-01-v4-combined.md`
@@ -217,19 +225,17 @@
 ### Если пишется новая сцена или глава
 Читать:
 1. `00-start-here/SESSION-BRIEF.md`
-2. `02-writing-system/PRIMARY-WORK-INSTRUCTION.md`
-3. `02-writing-system/HARD-BLOCKERS.md`
-4. `02-writing-system/VOICE-SYSTEM.md`
-5. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
+2. `02-writing-system/WORKING-METHOD-V2.md`
+3. `02-writing-system/AUTHOR-VOICE-AND-EXAMPLES.md` по конкретной задаче
+4. `02-writing-system/ANTI-CLICHE-EDITORIAL-CHECK.md` после черновика
 6. при необходимости — канон и соседние главы
 
 ### Если проверяется первая арка
 Читать:
 1. `00-start-here/SESSION-BRIEF.md`
-2. `02-writing-system/PRIMARY-WORK-INSTRUCTION.md`
-3. `02-writing-system/HARD-BLOCKERS.md`
-4. `02-writing-system/VOICE-SYSTEM.md`
-5. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
+2. `02-writing-system/WORKING-METHOD-V2.md`
+3. `02-writing-system/AUTHOR-VOICE-AND-EXAMPLES.md` по конкретной задаче
+4. `02-writing-system/ANTI-CLICHE-EDITORIAL-CHECK.md` после черновика
 6. `03-manuscript/arc-01-v4-combined.md`
 7. `01-canon/project-bible.md` по спорным местам
 

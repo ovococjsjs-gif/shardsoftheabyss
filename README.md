@@ -8,10 +8,9 @@
 Читать по порядку:
 
 1. `00-start-here/SESSION-BRIEF.md`
-2. `02-writing-system/PRIMARY-WORK-INSTRUCTION.md`
-3. `02-writing-system/HARD-BLOCKERS.md`
-4. `02-writing-system/VOICE-SYSTEM.md`
-5. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
+2. `02-writing-system/WORKING-METHOD-V2.md`
+3. `02-writing-system/AUTHOR-VOICE-AND-EXAMPLES.md`
+4. `02-writing-system/ANTI-CLICHE-EDITORIAL-CHECK.md`
 
 Это **короткий обязательный пакет** перед любой работой над прозой.
 

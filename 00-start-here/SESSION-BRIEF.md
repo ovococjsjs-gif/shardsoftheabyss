@@ -30,20 +30,14 @@
 
 ## 3. Что читать перед работой
 
-### Обязательный минимум
+### Для новой прозы или крупной переписи
 1. Этот файл
-2. `02-writing-system/PRIMARY-WORK-INSTRUCTION.md`
-3. `02-writing-system/HARD-BLOCKERS.md`
-4. `02-writing-system/VOICE-SYSTEM.md`
-5. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
+2. `02-writing-system/WORKING-METHOD-V2.md`
+3. `02-writing-system/AUTHOR-VOICE-AND-EXAMPLES.md` — выборочно, по задаче
+4. `02-writing-system/ANTI-CLICHE-EDITORIAL-CHECK.md` — после черновика
+5. Канон и предыдущую главу, которые относятся к сцене
 
-### Если работа идёт по канону
-4. `01-canon/project-bible.md`
-
-### Если работа идёт по первой арке
-5. `03-manuscript/arc-01-v4-combined.md`
-
----
+Старые методические файлы не являются обязательным входным пакетом. Они сохранены как архив решений.
 
 ## 4. Текущая позиция по первым 4 главам
 
