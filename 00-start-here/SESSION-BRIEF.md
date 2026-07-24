@@ -36,7 +36,8 @@
 3. `02-writing-system/PRIMARY-WORK-INSTRUCTION.md`
 4. `02-writing-system/HARD-BLOCKERS.md`
 5. `02-writing-system/VOICE-SYSTEM.md`
-6. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
+6. `02-writing-system/LIVE-REALITY-CONTRACT.md` — пишем по живому, а не просто прозу
+7. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
 
 ### Если работа идёт по канону
 - `01-canon/project-bible.md`
@@ -118,8 +119,10 @@
 ### Уровень 1 — короткий
 То, что читается в каждой сессии:
 - `00-start-here/SESSION-BRIEF.md`
+- `00-start-here/ESSENCE.md`
 - `02-writing-system/HARD-BLOCKERS.md`
 - `02-writing-system/VOICE-SYSTEM.md`
+- `02-writing-system/LIVE-REALITY-CONTRACT.md`
 - `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
 
 ### Уровень 2 — рабочий
@@ -144,6 +147,7 @@
 - персонажи различимы;
 - сцена не служит плану механически;
 - фильтры не проскакивают;
+- текст ощущается как наблюдение за реальностью, а не как проза — читатель забывает что читает;
 - структура понятна следующей сессии без повторного разгребания хаоса.
 
 ---

@@ -11,7 +11,7 @@
 - `90-archive/` — старые исходники и дубли
 
 Контекстные уровни:
-- Уровень 1 — короткий сессионный пакет: SESSION-BRIEF, ESSENCE, HARD-BLOCKERS, VOICE-SYSTEM, WORKFLOW-AND-QUALITY-GATE
+- Уровень 1 — короткий сессионный пакет: SESSION-BRIEF, ESSENCE, HARD-BLOCKERS, VOICE-SYSTEM, LIVE-REALITY-CONTRACT, WORKFLOW-AND-QUALITY-GATE
 - Уровень 2 — рабочее углубление: PROJECT-MAP, STYLE-EXAMPLES, IDEAL-CHAPTER-TEMPLATE, MANUSCRIPT-STATUS
 - Уровень 3 — длинная база: 01-canon/*, 03-manuscript/*, архив
 
@@ -31,6 +31,7 @@
 - `PRIMARY-WORK-INSTRUCTION.md` — что такое один проход = рекурсивный цикл
 - `HARD-BLOCKERS.md` — короткий закон, абсолютные запреты, порядок перед показом прозы
 - `VOICE-SYSTEM.md` — авторский голос vs голоса персонажей, гейт различимости
+- `LIVE-REALITY-CONTRACT.md` — пишем по живому, а не просто прозу, эффект реальности (новое, Level 1 обязателен)
 - `WORKFLOW-AND-QUALITY-GATE.md` — процесс, 4 режима чтения, gate A-D
 - `IDEAL-CHAPTER-TEMPLATE.md` — паспорт главы, пространственный контур, голоса, блокеры
 - `STYLE-EXAMPLES.md` — реальные правки было→стало
@@ -61,8 +62,8 @@
 ## 3. Что считать главным
 
 Канон: project-bible + PROJECT-STATUS
-Рабочая система: PRIMARY-WORK-INSTRUCTION, HARD-BLOCKERS, VOICE-SYSTEM, WORKFLOW-AND-QUALITY-GATE
-Рукопись: arc-01-v4-combined + arc-02/ch05-06 draft
+Рабочая система: PRIMARY-WORK-INSTRUCTION, HARD-BLOCKERS, VOICE-SYSTEM, LIVE-REALITY-CONTRACT, WORKFLOW-AND-QUALITY-GATE
+Рукопись: arc-01-v4-combined + arc-02/ch05-06 draft + v5/ переписывание с нуля
 Суть: ESSENCE.md
 
 ## 4. Что делать перед разными задачами
