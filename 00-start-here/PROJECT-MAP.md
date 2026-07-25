@@ -208,7 +208,7 @@
 - `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
 
 ### Главная рукопись
-- `03-manuscript/arc-01-v4-combined.md`
+- `03-manuscript/arc-01/arc-01-v4-combined.md`
 
 ---
 
@@ -230,7 +230,7 @@
 3. `02-writing-system/HARD-BLOCKERS.md`
 4. `02-writing-system/VOICE-SYSTEM.md`
 5. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
-6. `03-manuscript/arc-01-v4-combined.md`
+6. `03-manuscript/arc-01/arc-01-v4-combined.md`
 7. `01-canon/project-bible.md` по спорным местам
 
 ### Если уточняется канон

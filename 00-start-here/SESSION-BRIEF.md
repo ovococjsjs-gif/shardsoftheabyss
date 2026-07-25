@@ -24,7 +24,7 @@
 5. `02-writing-system/HARD-BLOCKERS.md`
 6. `02-writing-system/VOICE-SYSTEM.md`
 7. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
-8. `03-manuscript/arc-01-v4-combined.md`
+8. `03-manuscript/arc-01/arc-01-v4-combined.md`
 
 ---
 
@@ -41,7 +41,7 @@
 4. `01-canon/project-bible.md`
 
 ### Если работа идёт по первой арке
-5. `03-manuscript/arc-01-v4-combined.md`
+5. `03-manuscript/arc-01/arc-01-v4-combined.md`
 
 ---
 
@@ -118,7 +118,7 @@
 То, что читается только при необходимости глубокой проверки:
 - `01-canon/project-bible.md`
 - `01-canon/world-expansion-v0.1.md`
-- `03-manuscript/arc-01-v4-combined.md`
+- `03-manuscript/arc-01/arc-01-v4-combined.md`
 - архив
 
 ---
