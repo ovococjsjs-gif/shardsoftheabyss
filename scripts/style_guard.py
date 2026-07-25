@@ -303,7 +303,7 @@ def scan_paragraph_fragmentation(text: str, starts: List[int]) -> Iterable[Findi
     for line in text.splitlines(keepends=True):
         if is_prose_line(line) and not is_dialogue_line(line):
             sents = split_sentences(line)
-            if len(sents) >= 2:
+            if sents:
                 counts.append(len(sents))
                 if len(sents) >= 7 and (worst is None or len(sents) > worst[0]):
                     worst = (len(sents), offset, line.strip()[:120])
