@@ -28,23 +28,25 @@
 
 ### Нормы
 
-Откалиброваны по `03-manuscript/arc-01/arc-01-v4-combined.md` — тексту, который автор признал живым:
+Откалиброваны по старому черновику арки 1 (`90-archive/manuscript-drafts/arc-01-v4-combined-v2026-07.md`):
 
 - средняя длина предложения наррации: **7,6 слова**;
 - доля предложений ≤4 слов: **20%**.
 
 Тревога с 34%, брак с 42%.
 
+Это **нижняя граница**, а не цель. Для новой прозы ориентир выше: средняя длина 8–9 слов. Верхнего порога guard не проверяет — за длинные периоды он не ругается.
+
 ### Запуск
 
 ```bash
-python3 scripts/style_guard.py 03-manuscript/arc-02/ch-05-draft.md
+python3 scripts/style_guard.py 03-manuscript/arc-01/ch-01.md
 ```
 
 Несколько файлов с проверкой пересечений:
 
 ```bash
-python3 scripts/style_guard.py 03-manuscript/arc-02/*.md --cross
+python3 scripts/style_guard.py 03-manuscript/arc-01/*.md --cross
 ```
 
 Только сводка:

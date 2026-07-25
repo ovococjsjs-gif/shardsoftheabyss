@@ -188,8 +188,10 @@ python3 scripts/style_guard.py <файл>
 Это ревью нужно **фиксировать в отдельном временном файле**, а не держать в голове.
 
 Например:
-- `temp/ch05-review-pass-01.md`
-- `temp/arc02-block-review-01.md`
+- `temp/ch01-review-pass-01.md`
+- `temp/arc01-block-review-01.md`
+
+Папка `temp/` в `.gitignore` и в репозиторий не попадает.
 
 ### Четыре режима
 
