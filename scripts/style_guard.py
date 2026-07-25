@@ -112,6 +112,14 @@ STACCATO_WINDOW = 40          # предложений в скользящем �
 STACCATO_WARN_RATIO = 0.34    # выше — предупреждение
 STACCATO_BLOCK_RATIO = 0.42   # выше — блокер
 
+# Безглагольные предложения. Норма арки 1 — 11%, в главах 5-6 было 22-28%.
+VERBLESS_WARN_RATIO = 0.15
+VERBLESS_BLOCK_RATIO = 0.20
+
+# Предложений на абзац наррации. Норма арки 1 — 2,1.
+FRAGMENT_WARN_RATIO = 2.5
+FRAGMENT_BLOCK_RATIO = 2.9
+
 # Глаголы: для поиска назывных (безглагольных) цепочек.
 VERB_ENDINGS = re.compile(
     r"\w+(?:ал|ала|али|ало|ил|ила|или|ило|ел|ела|ели|ело|ул|ула|ули|уло|"
@@ -257,6 +265,63 @@ def scan_staccato(text: str, starts: List[int]) -> Iterable[Finding]:
         yield Finding("BLOCKER", "STACCATO_WINDOW", offset_to_line(o, starts),
                       items[worst[1]][1][:110],
                       f"локальный участок с долей коротких предложений {worst[0]:.0%} на {STACCATO_WINDOW} подряд")
+
+
+def scan_verbless(text: str, starts: List[int]) -> Iterable[Finding]:
+    """Доля безглагольных предложений наррации.
+
+    Норма арки 1 — 11%. В главах 5-6 было 22-28%: предметы называются,
+    но не участвуют в действии. Это и читается как «пустовато».
+    """
+    items = [(o, s) for o, s in iter_narration_sentences(text) if word_count(s) > 0]
+    if len(items) < 60:
+        return
+    verbless = [1 if not has_verb(s) else 0 for _, s in items]
+    ratio = sum(verbless) / len(verbless)
+    if ratio > VERBLESS_BLOCK_RATIO:
+        sev = "BLOCKER"
+        msg = "предметы перечисляются вместо того, чтобы участвовать в действии"
+    elif ratio > VERBLESS_WARN_RATIO:
+        sev = "WARN"
+        msg = "многовато назывных конструкций"
+    else:
+        return
+    yield Finding(sev, "VERBLESS_DENSITY", 1,
+                  f"безглагольных предложений наррации {ratio:.0%}",
+                  f"{msg}; норма арки 1 — 11%, порог {VERBLESS_BLOCK_RATIO:.0%}")
+
+
+def scan_paragraph_fragmentation(text: str, starts: List[int]) -> Iterable[Finding]:
+    """Сколько предложений приходится на абзац наррации.
+
+    Норма арки 1 — 2,1. В главе 5 было 3,1 при той же длине абзаца:
+    материала столько же, швов в полтора раза больше.
+    """
+    counts = []
+    offset = 0
+    worst = None
+    for line in text.splitlines(keepends=True):
+        if is_prose_line(line) and not is_dialogue_line(line):
+            sents = split_sentences(line)
+            if len(sents) >= 2:
+                counts.append(len(sents))
+                if len(sents) >= 7 and (worst is None or len(sents) > worst[0]):
+                    worst = (len(sents), offset, line.strip()[:120])
+        offset += len(line)
+    if len(counts) < 25:
+        return
+    avg = sum(counts) / len(counts)
+    if avg > FRAGMENT_BLOCK_RATIO:
+        yield Finding("BLOCKER", "PARAGRAPH_FRAGMENTATION", 1,
+                      f"в среднем {avg:.1f} предложения на абзац наррации",
+                      f"абзацы раздроблены; норма арки 1 — 2,1, порог {FRAGMENT_BLOCK_RATIO}")
+    elif avg > FRAGMENT_WARN_RATIO:
+        yield Finding("WARN", "PARAGRAPH_FRAGMENTATION", 1,
+                      f"в среднем {avg:.1f} предложения на абзац наррации",
+                      "абзацы дробнее нормы проекта (2,1)")
+    if worst:
+        yield Finding("WARN", "FRAGMENTED_PARAGRAPH", offset_to_line(worst[1], starts),
+                      worst[2], f"абзац из {worst[0]} предложений — проверить, не опись ли это")
 
 
 def scan_anaphora(text: str, starts: List[int]) -> Iterable[Finding]:
@@ -407,6 +472,8 @@ def run_guard(path: Path) -> List[Finding]:
     findings: List[Finding] = []
     findings.extend(scan_lexical(text, starts))
     findings.extend(scan_staccato(text, starts))
+    findings.extend(scan_verbless(text, starts))
+    findings.extend(scan_paragraph_fragmentation(text, starts))
     findings.extend(scan_anaphora(text, starts))
     findings.extend(scan_nominative_chain(text, starts))
     findings.extend(scan_repeats(text, starts))
