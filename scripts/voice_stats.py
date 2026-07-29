@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 
 SHADOW_MAX_AVG = 7.0
-SHADOW_MIN_SHARE = 0.12
+SHADOW_MIN_SHARE = 0.115  # 12% с допуском на округление
 SILVIA_MIN_AVG = 4.0
 
 TAG = re.compile(r"\s—\s+[а-яё][^—]*?(?:\.|$)")
@@ -32,12 +32,19 @@ def words(s: str) -> int:
     return len(re.findall(r"[\w-]+", s))
 
 
+ITALIC = re.compile(r"\*([^*]+)\*")
+
+
 def collect(text: str):
     shadow, spoken = [], []
     for line in text.splitlines():
         s = line.strip()
         if s.startswith("*") and not s.startswith("**"):
-            body = TAG.sub(" ", s.strip("*"))
+            # Реплика Тени может быть разорвана ремаркой автора:
+            #   *Всё,* — сказала она. — *Я в этом теле нахожусь.*
+            # Считаем только курсивные сегменты, ремарку выбрасываем.
+            segs = ITALIC.findall(s)
+            body = " ".join(segs) if segs else TAG.sub(" ", s.strip("*"))
             if words(body):
                 shadow.append(body.strip())
         elif s.startswith("—"):
