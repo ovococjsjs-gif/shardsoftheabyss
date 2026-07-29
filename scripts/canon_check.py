@@ -32,6 +32,13 @@ MONTH_STEMS = {"цветн": 1, "травн": 2, "червн": 3, "липн": 4}
 DAYS_IN_MONTH = 30
 ATTACK_ABS = 14  # 14 цветня
 
+# Срок считается «от начала истории» только при маркере прошлого рядом.
+PAST_MARKERS = ("назад", "в гильдии", "с тех пор", "прошло", "за это время",
+                "здесь", "тут", "уже", "все эти", "за последние")
+# ...и не считается, если речь о будущем или о постороннем человеке.
+FUTURE_MARKERS = ("до смерти", "предстоит", "впереди", "итого", "будет",
+                  "из которых", "потом сорок")
+
 NUMERALS = {
     "один": 1, "одна": 1, "одну": 1, "два": 2, "две": 2, "три": 3, "четыре": 4,
     "пять": 5, "шесть": 6, "семь": 7, "восемь": 8, "девять": 9, "десять": 10,
@@ -95,42 +102,56 @@ def check_forbidden(text: str, path: Path, facts) -> list[str]:
     return out
 
 
-AGE_CTX = re.compile(
-    r"(?:(?<![А-Яа-яЁё])(?P<num>[а-яё]+)(?![А-Яа-яЁё])\s+(?:лет|года|год)\b"
-    r"|\b(?:лет|года|год)\s+(?P<num2>[а-яё]+)(?![А-Яа-яЁё]))",
-    re.IGNORECASE)
+AGE_SUBJ = {
+    "сильвии": r"(?:мне|Сильви\w*|Дюваль)",
+    "агнис": r"(?:ей|Агнис)",
+    "кайра": r"(?:ему|Кайр\w*|Кёниг\w*)",
+}
 
 
 def check_ages(text: str, path: Path, facts) -> list[str]:
-    """Возраст: числительное рядом со словом «лет/года» и именем в окне."""
+    """Прямое приписывание возраста: «мне двадцать», «Ей восемнадцать».
+
+    Косвенные упоминания («в пятнадцать лет он спросил», «четырнадцать лет»
+    о чужой руке) сюда не попадают: иначе проверка даёт сплошной мусор.
+    """
     ages = {}
-    for key, good, bad_list, _n in facts:
+    for key, good, _bad, _n in facts:
         if key.startswith("возраст"):
             who = key.split("_", 1)[1]
             val = parse_number(good)
             if val:
-                ages[who] = (val, bad_list)
-    who_names = {"сильвии": ("Сильви", "Дюваль", "я "), "агнис": ("Агнис",),
-                 "кайра": ("Кайр", "Кёниг")}
+                ages[who] = val
+
     out = []
-    for m in AGE_CTX.finditer(text):
-        word = m.group("num") or m.group("num2")
-        n = parse_number(word)
-        if n is None or n > 60:
+    for who, val in ages.items():
+        subj = AGE_SUBJ.get(who)
+        if not subj:
             continue
-        window = text[max(0, m.start() - 200):m.start() + 120]
-        for who, (val, _bad) in ages.items():
-            markers = who_names.get(who, ())
-            if not any(mk in window for mk in markers):
+        pat = re.compile(
+            rf"(?<![А-Яа-яЁё]){subj}\s+(?:было\s+|уже\s+)?"
+            rf"(?P<num>[а-яё]+)(?:\s+(?:лет|года|год))?(?![А-Яа-яЁё])",
+            re.IGNORECASE)
+        for m in pat.finditer(text):
+            n = parse_number(m.group("num"))
+            if n is None or not (10 <= n <= 60):
                 continue
-            if n != val and abs(n - val) <= 6:
-                out.append(
-                    f"[AGE]   {path.name}:{line_of(text, m.start())} "
-                    f"«{word} лет» рядом с упоминанием «{who}», "
-                    f"канон — {val}\n         {excerpt(text, m.start())}")
+            if n == val:
+                continue
+            tail = text[m.end():m.end() + 24].lower()
+            # «мне двенадцать дней плохо» — это срок, а не возраст
+            if re.match(r"\s*(?:дн|недел|месяц|час|минут|лет назад)", tail):
+                continue
+            # «мне было семнадцать» — воспоминание о прошлом возрасте
+            if re.search(r"\bбыло\s*$", text[max(0, m.start() - 12):m.start()
+                                              + len(m.group(0))
+                                              - len(m.group("num"))], re.I):
+                continue
+            out.append(
+                f"[AGE]   {path.name}:{line_of(text, m.start())} "
+                f"«{m.group(0)}» — канон: {who} = {val}\n"
+                f"         {excerpt(text, m.start())}")
     return out
-
-
 def parse_number(word: str):
     w = word.lower().strip()
     if w.isdigit():
@@ -200,6 +221,11 @@ def check_timeline(text: str, path: Path) -> list[str]:
         for spos, sword, sdays in collect_spans(text):
             if sdays < 45:
                 continue  # короткие сроки почти всегда о другом
+            ctx = text[max(0, spos - 90):spos + 90].lower()
+            if not any(mk in ctx for mk in PAST_MARKERS):
+                continue
+            if any(mk in ctx for mk in FUTURE_MARKERS):
+                continue
             delta = abs(sdays - since)
             if delta > 20:
                 out.append(
