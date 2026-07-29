@@ -182,7 +182,15 @@ def is_prose_line(line: str) -> bool:
 
 
 def is_dialogue_line(line: str) -> bool:
-    return line.strip().startswith("—")
+    s = line.strip()
+    # Обычная реплика.
+    if s.startswith("—"):
+        return True
+    # Реплика внутреннего голоса: в проекте оформляется курсивом (*...*).
+    # Без этой ветки речь Тени попадала в замер ритма наррации и искажала его.
+    if s.startswith("*") and not s.startswith("**"):
+        return True
+    return False
 
 
 def split_sentences(block: str) -> List[str]:
