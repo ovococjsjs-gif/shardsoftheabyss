@@ -443,6 +443,73 @@ def scan_form(text: str, starts: List[int]) -> Iterable[Finding]:
 
 
 # ---------------------------------------------------------------------------
+# Сентенции в репликах (v2.2)
+# ---------------------------------------------------------------------------
+
+# Обобщающий субъект: речь идёт о людях вообще, а не о ком-то в сцене.
+SENT_SUBJ = re.compile(
+    r"\b(?:люди|человек|человека|человеку|человеком|всякий|каждый|никто|"
+    r"тот,\s*кто|те,\s*кто)\b", re.IGNORECASE)
+
+# Гномический презенс: вневременное настоящее время.
+SENT_GNOM = re.compile(r"\b\w{3,}(?:ет|ёт|ит|ут|ют|ат|ят|ется|ится|аются|яются)\b")
+
+# Предметный слой. Если он есть, персонаж говорит о деле, а не о жизни вообще,
+# и обобщение законно: это регламент, медицина, ремесло.
+SENT_DOMAIN = re.compile(
+    r"\b(?:метк\w+|контракт\w*|ранг\w*|зон\w+|допуск\w*|отклик\w*|аттестац\w+|"
+    r"назначени\w+|гильди\w+|регламент\w*|процедур\w+|учёт\w*|реестр\w*|бланк\w*|"
+    r"отчёт\w*|рекомендаци\w+|комисси\w+|нарушени\w+|розыск\w*|повреждени\w+|"
+    r"целител\w+|соулс\w*|заряд\w*|причал\w*|мачт\w+|такелаж\w*|полномочи\w+|"
+    r"наставлени\w+|выход\w*|шов|швы|рана|ран\w+|жар|бред)\b", re.IGNORECASE)
+
+# Имя собственное — значит, речь о конкретном человеке.
+SENT_NAME = re.compile(
+    r"\b(?:Гар|Вельт|Кайр\w*|Агнис|Элизабет|Ханн\w+|Лиран\w*|Сигурд\w*|Рэйн\w+|"
+    r"Мабрик\w*|Тобер\w*|Торен\w*|Хельг\w+|Варден\w*|Тесс|Ирсал\w+|Минт\w+|"
+    r"Арклайт\w*|Северин\w*|Дагоберт\w*|Марн\w+|Ирм\w+|Осс\w+)\b")
+
+
+def iter_replica_sentences(text: str):
+    """Предложения только из реплик: прямая речь и внутренний голос."""
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        s = line.strip()
+        if s.startswith("—") or (s.startswith("*") and not s.startswith("**")):
+            body = s.strip("*")
+            if body.startswith("—"):
+                body = body[1:]
+            # снять авторскую ремарку вида «— сказал он.»
+            body = re.sub(r"\s—\s+[а-яё][^—]*?(?:\.|$)", ". ", body)
+            for sent in split_sentences(body):
+                yield offset, sent
+        offset += len(line)
+
+
+def scan_sententious(text: str, starts: List[int]) -> Iterable[Finding]:
+    """Сентенция: обобщающее суждение о людях, не привязанное к сцене.
+
+    Признак — реплику можно вынуть из главы и повесить на стену, не потеряв
+    смысла. Такие фразы звучат умнее говорящего и стирают разницу голосов.
+    """
+    for off, sent in iter_replica_sentences(text):
+        w = word_count(sent)
+        if w < 6 or w > 34:
+            continue
+        if sent.rstrip().endswith("?"):
+            continue
+        if not SENT_SUBJ.search(sent):
+            continue
+        if not SENT_GNOM.search(sent):
+            continue
+        if SENT_DOMAIN.search(sent) or SENT_NAME.search(sent):
+            continue
+        yield Finding("WARN", "SENTENTIOUS", offset_to_line(off, starts), sent[:130],
+                      "обобщение о людях вне предметного слоя; проверить, "
+                      "не звучит ли реплика умнее говорящего")
+
+
+# ---------------------------------------------------------------------------
 # Кросс-файловая проверка
 # ---------------------------------------------------------------------------
 
@@ -486,6 +553,7 @@ def run_guard(path: Path) -> List[Finding]:
     findings.extend(scan_nominative_chain(text, starts))
     findings.extend(scan_repeats(text, starts))
     findings.extend(scan_form(text, starts))
+    findings.extend(scan_sententious(text, starts))
     findings.sort(key=lambda f: (SEVERITY_ORDER[f.severity], f.line, f.code))
     return findings
 
