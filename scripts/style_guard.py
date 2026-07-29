@@ -514,6 +514,98 @@ def scan_sententious(text: str, starts: List[int]) -> Iterable[Finding]:
 # ---------------------------------------------------------------------------
 
 
+
+# ---------------------------------------------------------------------------
+# SEMANTIC_ECHO — смысловой повтор (v2.3)
+# ---------------------------------------------------------------------------
+#
+# Дефект послойной дописки: заход №4 добавляет абзац, не помня, что заход №2
+# уже сказал то же самое другими словами. Дословный SELF_DUPLICATE такое
+# не ловит — формулировки разные.
+#
+# Найденный пример (глава 13, кульминация арки 3):
+#   «Спина болела так, как болит у человека, который сидит за столом двадцать лет»
+#   «Спина. Болела ниже и глубже моего, тем ровным нытьём, которое приходит
+#    к человеку, просидевшему за столом полжизни»
+#
+# Метод: скользящее окно по абзацам наррации, сравнение по множеству
+# значимых лемм (грубая нормализация окончаний). Совпадение >= порога
+# при достаточной длине — сигнал.
+
+ECHO_WINDOW = 40          # абзацев
+ECHO_MIN_CONTENT = 5      # значимых слов в абзаце, иначе не сравниваем
+ECHO_JACCARD = 0.42       # доля общих значимых слов
+
+STOPWORDS = {
+    "и", "а", "но", "что", "как", "это", "то", "не", "ни", "же", "бы", "ли",
+    "в", "во", "на", "с", "со", "к", "ко", "по", "за", "из", "от", "до", "у",
+    "о", "об", "для", "при", "про", "над", "под", "без", "через", "потому",
+    "который", "которая", "которое", "которые", "которых", "которым",
+    "я", "ты", "он", "она", "оно", "они", "мы", "вы", "меня", "тебя", "его",
+    "её", "их", "мне", "тебе", "ему", "ей", "им", "себя", "себе", "свой",
+    "своя", "своё", "свои", "мой", "моя", "моё", "мои", "был", "была", "было",
+    "были", "быть", "есть", "уже", "ещё", "только", "даже", "вот", "так",
+    "там", "тут", "здесь", "тогда", "потом", "очень", "всё", "все", "весь",
+    "если", "чтобы", "когда", "где", "куда", "чем", "чём", "тем", "том",
+    "этот", "эта", "эти", "того", "этого", "этом", "этой", "нет", "да",
+}
+
+
+def _norm_word(w: str) -> str:
+    """Грубая нормализация: срезаем частые окончания."""
+    w = w.lower()
+    for suf in ("ами", "ями", "ого", "его", "ому", "ему", "ыми", "ими",
+                "ых", "их", "ов", "ев", "ам", "ям", "ах", "ях", "ой", "ей",
+                "ую", "юю", "ые", "ие", "ый", "ий", "ая", "яя", "ое", "ее",
+                "ла", "ло", "ли", "ть", "ет", "ёт", "ит", "ут", "ют", "ат",
+                "ят", "у", "ю", "а", "я", "о", "е", "ы", "и", "ь"):
+        if len(w) > 5 and w.endswith(suf):
+            return w[: -len(suf)]
+    return w
+
+
+def _content_words(text: str) -> set:
+    words = re.findall(r"[А-Яа-яЁё]{3,}", text.lower())
+    return {_norm_word(w) for w in words if w not in STOPWORDS}
+
+
+def scan_semantic_echo(text: str, starts: List[int]) -> Iterable[Finding]:
+    """Абзацы наррации, повторяющие друг друга по смыслу."""
+    paras = []
+    offset = 0
+    for raw in re.split(r"(\n\s*\n)", text):
+        if raw.strip() and not raw.strip().startswith(("#", "---")):
+            s = raw.strip()
+            if not s.startswith(("—", "*", "«", "|")):
+                cw = _content_words(s)
+                if len(cw) >= ECHO_MIN_CONTENT:
+                    paras.append((offset, s, cw))
+        offset += len(raw)
+
+    reported = set()
+    for i in range(len(paras)):
+        o1, t1, w1 = paras[i]
+        for j in range(i + 1, min(i + 1 + ECHO_WINDOW, len(paras))):
+            o2, t2, w2 = paras[j]
+            inter = len(w1 & w2)
+            union = len(w1 | w2)
+            if union == 0:
+                continue
+            jac = inter / union
+            if jac >= ECHO_JACCARD and inter >= 4:
+                key = (min(o1, o2), max(o1, o2))
+                if key in reported:
+                    continue
+                reported.add(key)
+                yield Finding(
+                    "WARN", "SEMANTIC_ECHO", offset_to_line(o2, starts),
+                    f"«{t1[:70]}…» ≈ «{t2[:70]}…»",
+                    f"абзацы совпадают на {jac:.0%} значимых слов "
+                    f"(строки {offset_to_line(o1, starts)} и "
+                    f"{offset_to_line(o2, starts)}) — вероятный след "
+                    f"послойной дописки")
+
+
 def cross_file_duplicates(paths: List[Path]) -> List[str]:
     """Ищет дословные предложения, общие для разных глав."""
     per_file = {}
@@ -554,6 +646,7 @@ def run_guard(path: Path) -> List[Finding]:
     findings.extend(scan_repeats(text, starts))
     findings.extend(scan_form(text, starts))
     findings.extend(scan_sententious(text, starts))
+    findings.extend(scan_semantic_echo(text, starts))
     findings.sort(key=lambda f: (SEVERITY_ORDER[f.severity], f.line, f.code))
     return findings
 
