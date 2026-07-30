@@ -147,6 +147,16 @@ def check_ages(text: str, path: Path, facts) -> list[str]:
                                               + len(m.group(0))
                                               - len(m.group("num"))], re.I):
                 continue
+            # «мне» в чужой прямой речи — это не POV.
+            # Ложное срабатывание найдено в гл. 19: Агнис говорит «Мне
+            # восемнадцать», скрипт приписывал это Сильвии.
+            if m.group(0).lower().lstrip().startswith(("мне", "ему", "ей")):
+                ls = text.rfind("\n", 0, m.start()) + 1
+                le = text.find("\n", m.start())
+                line = text[ls:le if le > 0 else len(text)]
+                if line.lstrip().startswith("—") and not re.search(
+                        r"сказала я|ответила я|спросила я", line):
+                    continue
             out.append(
                 f"[AGE]   {path.name}:{line_of(text, m.start())} "
                 f"«{m.group(0)}» — канон: {who} = {val}\n"
