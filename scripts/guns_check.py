@@ -56,7 +56,7 @@ def main(argv=None) -> int:
     current = args.current or last_written_chapter()
     print(f"Текущая глава: {current}. Предел молчания: {SILENCE_LIMIT} глав.\n")
 
-    overdue, watch, ok, done = [], [], 0, 0
+    overdue, watch, paused, ok, done = [], [], [], 0, 0
 
     for raw in path.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
@@ -73,6 +73,11 @@ def main(argv=None) -> int:
             done += 1
             continue
         if "⚫" in status:
+            continue
+        if "⏸" in status:
+            # Отложено решением автора: ружьё держат до конкретной сцены.
+            # Обязателен комментарий в колонке «Выстрел» с номером главы.
+            paused.append((name, cells[3]))
             continue
 
         last = parse_chapter(cells[2])
@@ -98,7 +103,13 @@ def main(argv=None) -> int:
             print(f"   молчит {s} глав (с гл. {last}): {n}")
         print()
 
-    print(f"🟢 в порядке: {ok}   ✅ выстрелило: {done}")
+    if paused:
+        print("⏸ отложено решением автора:")
+        for name, when in paused:
+            print(f"   {name[:58]} → {when}")
+        print()
+
+    print(f"🟢 в порядке: {ok}   ✅ выстрелило: {done}   ⏸ отложено: {len(paused)}")
     print(f"\n--- итог ---\nпросрочено: {len(overdue)}")
     return 1 if overdue else 0
 
