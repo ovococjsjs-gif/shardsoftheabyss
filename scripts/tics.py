@@ -110,6 +110,21 @@ def main(argv=None) -> int:
             over += 1
         print(f"{name:32} {total:6} {rate:7.1f} {norm:>7}{flag}  {per_file}")
 
+    # Тень зовёт POV по фамилии — норма 4 на главу
+    shadow_name = 0
+    per_sn = []
+    for p in paths:
+        n = sum(len(re.findall(r"Дюваль", m))
+                for m in re.findall(r"\*[^*\n]+\*", texts[p]))
+        shadow_name += n
+        per_sn.append(n)
+    limit_sn = 4 * len(paths)
+    bad = shadow_name > limit_sn
+    if bad:
+        over += 1
+    print(f"{'Тень зовёт «Дюваль»':32} {shadow_name:6} {shadow_name/max(len(paths),1):7.1f} "
+          f"{'4/гл':>7}{'  ❌' if bad else ''}  {per_sn}")
+
     # «Я...» в начале абзаца
     ya_tot = pa_tot = 0
     per = []
