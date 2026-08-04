@@ -37,7 +37,32 @@ TICS = [
     ("«— Да.» репликой",     r"(?m)^—\s*Да\.\s*$", 45, None),  # ~3-4 на главу
     ("«Я...» в нач. абзаца", None, None, None),   # считается отдельно
     ("финал через сон",      None, None, None),   # считается отдельно
+    ("стаж как аргумент",    None, None, None),   # только в репликах, §1.12
+    ("«я про / ты про»",     None, None, None),   # только в репликах, §1.13
+    ("«я не про X»",         None, None, None),   # запрещено вовсе, §1.13
 ]
+
+# --- тики, которые считаются ТОЛЬКО в прямой речи (§1.12, §1.13) ---
+
+# «я двадцать три года веду назначения», «я тут двадцать девять лет»
+STAZH = re.compile(
+    r"\b(?:я|мы|он|она|у меня|мне|у него|у неё)\b[^.!?—]{0,45}?"
+    r"\b(?:двенадцать|четырнадцать|шестнадцать|восемнадцать|одиннадцать|"
+    r"девятнадцать|двадцать|тридцать|сорок|пятьдесят|шестьдесят|семьдесят|"
+    r"тысяч\w*)\s*\w*\s+(?:лет|года|год)\b", re.IGNORECASE)
+
+# «я про место спрашиваю», «ты про пропажу», «я об этом думал»
+PRO_PRO = re.compile(
+    r"\b(?:я|ты|вы|мы)\s+(?:не\s+)?(?:про|об|о)\s+(?:это|том|то|неё|него|них|"
+    r"чём|что|вес|время|место|руки|наказание)\b", re.IGNORECASE)
+
+# «я не про X» — форма запрещённой конструкции «не X, а Y» (§1.1)
+NE_PRO = re.compile(r"\b(?:я|ты|вы|мы)\s+не\s+(?:про|об|о)\b", re.IGNORECASE)
+
+
+def dialogue_lines(text: str):
+    """Строки прямой речи (начинаются с тире)."""
+    return [ln.strip() for ln in text.splitlines() if ln.strip().startswith("—")]
 
 SLEEP_END = re.compile(
     r"(?:легла|заснула|уснула|не засыпала|задула свеч|потушила лампу|"
@@ -147,6 +172,24 @@ def main(argv=None) -> int:
         over += 1
     print(f"{'финал главы через сон':32} {len(sleeps):6} {'':7} {'3':>7}"
           f"{'  ❌' if bad else ''}  {sleeps}")
+
+    # --- тики прямой речи: §1.12 и §1.13 ---
+    for label, rx, per_chapter in (
+            ("стаж как аргумент", STAZH, 1),
+            ("«я про / ты про»", PRO_PRO, 2),
+            ("«я не про X» (запрещено)", NE_PRO, 0)):
+        per_file, total = [], 0
+        for p in paths:
+            c = sum(1 for ln in dialogue_lines(texts[p]) if rx.search(ln))
+            per_file.append(c)
+            total += c
+        limit = per_chapter * len(paths)
+        bad = total > limit
+        if bad:
+            over += 1
+        norm = f"{per_chapter}/гл" if per_chapter else "0"
+        print(f"{label:32} {total:6} {total / max(len(paths), 1):7.1f} {norm:>7}"
+              f"{'  ❌' if bad else ''}  {per_file}")
 
     print(f"\n--- итог ---\nтиков сверх нормы: {over}")
     return 1 if over else 0
