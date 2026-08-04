@@ -135,19 +135,25 @@ def main(argv=None) -> int:
             over += 1
         print(f"{name:32} {total:6} {rate:7.1f} {norm:>7}{flag}  {per_file}")
 
-    # Тень зовёт POV по фамилии — норма 4 на главу
+    # Фамилия отменена целиком (HARD-BLOCKERS §1.11, август 2026): в тексте её быть не должно
+    surname = sum(texts[p].count("Дюваль") for p in paths)
+    per_surname = [texts[p].count("Дюваль") for p in paths]
+    if surname:
+        over += 1
+    print(f"{'фамилия «Дюваль» (запрещена)':32} {surname:6} {surname/max(len(paths),1):7.1f} "
+          f"{'0':>7}{'  ❌' if surname else ''}  {per_surname}")
+
+    # Тень зовёт POV по имени — норма 4 на главу (прежний тик переехал на имя)
     shadow_name = 0
     per_sn = []
     for p in paths:
-        n = sum(len(re.findall(r"Дюваль", m))
-                for m in re.findall(r"\*[^*\n]+\*", texts[p]))
+        n = len(re.findall(r"\*[^*\n]*\bСильвия\b[^*\n]*\*", texts[p]))
         shadow_name += n
         per_sn.append(n)
-    limit_sn = 4 * len(paths)
-    bad = shadow_name > limit_sn
+    bad = any(n > 4 for n in per_sn)
     if bad:
         over += 1
-    print(f"{'Тень зовёт «Дюваль»':32} {shadow_name:6} {shadow_name/max(len(paths),1):7.1f} "
+    print(f"{'Тень зовёт «Сильвия»':32} {shadow_name:6} {shadow_name/max(len(paths),1):7.1f} "
           f"{'4/гл':>7}{'  ❌' if bad else ''}  {per_sn}")
 
     # «Я...» в начале абзаца
