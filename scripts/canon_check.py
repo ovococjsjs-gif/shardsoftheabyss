@@ -81,6 +81,37 @@ def excerpt(text: str, pos: int, width: int = 95) -> str:
     return " ".join(text[s:e].split())
 
 
+# --- календарь: русские месяцы запрещены (§39.4а) ---
+# Сквозной проход август 2026: 89 вхождений переведены в славянскую систему.
+# Ловушка: «Марта» — имя целительницы ночной смены (гл. 3, 6), не месяц.
+RU_MONTHS = re.compile(
+    r"(?<![А-Яа-яЁё])("
+    r"январ\w+|феврал\w+|апрел\w+|ма[йяею]|июн\w+|июл\w+|"
+    r"август\w*|сентябр\w+|октябр\w+|ноябр\w+|декабр\w+"
+    r")(?![А-Яа-яЁё])", re.IGNORECASE)
+
+RU_TO_SLAV = {
+    "март": "березоль", "апрел": "цветень", "ма": "травень",
+    "июн": "червень", "июл": "липень", "август": "серпень",
+    "сентябр": "вересень", "октябр": "жовтень",
+}
+
+
+def check_calendar(text: str, path: Path) -> list[str]:
+    """Русские названия месяцев противоречат §39.4а."""
+    out = []
+    for m in RU_MONTHS.finditer(text):
+        w = m.group(0)
+        stem = next((k for k in RU_TO_SLAV if w.lower().startswith(k)), None)
+        hint = f" → {RU_TO_SLAV[stem]}" if stem else ""
+        out.append(
+            f"[CANON] {path.name}:{line_of(text, m.start())} "
+            f"русский месяц «{w}»{hint} — календарь славянский (§39.4а)\n"
+            f"         {excerpt(text, m.start())}"
+        )
+    return out
+
+
 def check_forbidden(text: str, path: Path, facts) -> list[str]:
     """Запрещённые варианты факта: прямое противоречие канону.
 
@@ -315,6 +346,7 @@ def main(argv=None) -> int:
         found += check_ages(text, p, facts)
         found += check_timeline(text, p)
         found += check_span_conflicts(text, p)
+        found += check_calendar(text, p)
 
         hard = [f for f in found if f.startswith(("[CANON]", "[!TIME]", "[AGE]"))]
         problems += len(hard)
