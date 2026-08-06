@@ -45,6 +45,11 @@ TICS = [
 # --- тики, которые считаются ТОЛЬКО в прямой речи (§1.12, §1.13) ---
 
 # «я двадцать три года веду назначения», «я тут двадцать девять лет»
+# Глаголы состояния: «он лежал тысячу лет» — не стаж, а срок хранения.
+# Стаж как аргумент — это всегда деятельность говорящего.
+STAZH_SKIP = re.compile(r"\b(?:лежал\w*|пролежал\w*|простоял\w*|стоял\w*|"
+                        r"провалял\w*|спал\w*|проспал\w*)\b", re.IGNORECASE)
+
 STAZH = re.compile(
     r"\b(?:я|мы|он|она|у меня|мне|у него|у неё)\b[^.!?—]{0,45}?"
     r"\b(?:двенадцать|четырнадцать|шестнадцать|восемнадцать|одиннадцать|"
@@ -186,7 +191,9 @@ def main(argv=None) -> int:
             ("«я не про X» (запрещено)", NE_PRO, 0)):
         per_file, total = [], 0
         for p in paths:
-            c = sum(1 for ln in dialogue_lines(texts[p]) if rx.search(ln))
+            c = sum(1 for ln in dialogue_lines(texts[p])
+                    if rx.search(ln)
+                    and not (rx is STAZH and STAZH_SKIP.search(ln)))
             per_file.append(c)
             total += c
         limit = per_chapter * len(paths)
