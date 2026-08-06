@@ -50,6 +50,12 @@ TICS = [
 STAZH_SKIP = re.compile(r"\b(?:лежал\w*|пролежал\w*|простоял\w*|стоял\w*|"
                         r"провалял\w*|спал\w*|проспал\w*)\b", re.IGNORECASE)
 
+# Возраст человека — не выслуга: «я ему в двенадцать лет говорил»,
+# «мне было восемнадцать лет», «сторож, шестьдесят лет».
+STAZH_AGE = re.compile(
+    r"\b(?:в|мне|ему|ей|нам|им)\s+(?:было\s+)?[а-яё]+(?:дцать|надцать|сят)?\s*лет\b"
+    r"|\bмне\s+было\b|\b\w+,\s*[а-яё]+\s+лет,", re.IGNORECASE)
+
 STAZH = re.compile(
     r"\b(?:я|мы|он|она|у меня|мне|у него|у неё)\b[^.!?—]{0,45}?"
     r"\b(?:двенадцать|четырнадцать|шестнадцать|восемнадцать|одиннадцать|"
@@ -63,6 +69,11 @@ PRO_PRO = re.compile(
 
 # «я не про X» — форма запрещённой конструкции «не X, а Y» (§1.1)
 NE_PRO = re.compile(r"\b(?:я|ты|вы|мы)\s+не\s+(?:про|об|о)\b", re.IGNORECASE)
+
+# Исключение, согласованное с автором: живое разговорное «да я не про то»
+# в перебранке (гл. 22). Это не конструкция-объяснение, а перебивка спорящего:
+# он не объявляет предмет речи, а отмахивается от чужого возражения.
+NE_PRO_OK = re.compile(r"\bда\s+я\s+не\s+про\s+то\b", re.IGNORECASE)
 
 
 def dialogue_lines(text: str):
@@ -133,8 +144,12 @@ def main(argv=None) -> int:
             bad = rate > per1000
             norm = f"{per1000}/1k"
         else:
-            bad = limit is not None and total > limit
-            norm = str(limit)
+            # Пороги заданы из расчёта на ОДНУ главу. При запуске по нескольким
+            # файлам их надо масштабировать, иначе книга целиком всегда «в браке»:
+            # 225 «ровно» на 31 главу — это 7 на главу при норме 45, то есть норма.
+            scaled = limit * len(paths) if limit is not None else None
+            bad = scaled is not None and total > scaled
+            norm = f"{limit}/гл" if len(paths) > 1 else str(limit)
         flag = "  ❌" if bad else ""
         if bad:
             over += 1
@@ -193,7 +208,9 @@ def main(argv=None) -> int:
         for p in paths:
             c = sum(1 for ln in dialogue_lines(texts[p])
                     if rx.search(ln)
-                    and not (rx is STAZH and STAZH_SKIP.search(ln)))
+                    and not (rx is STAZH and (STAZH_SKIP.search(ln)
+                                             or STAZH_AGE.search(ln)))
+                    and not (rx is NE_PRO and NE_PRO_OK.search(ln)))
             per_file.append(c)
             total += c
         limit = per_chapter * len(paths)
