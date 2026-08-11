@@ -18,14 +18,17 @@
 При конфликте приоритет такой:
 
 1. Последнее прямое решение автора
-2. `01-canon/project-bible.md`
-3. `01-canon/PROJECT-STATUS.md`
-4. `02-writing-system/PRIMARY-WORK-INSTRUCTION.md`
-5. `02-writing-system/HARD-BLOCKERS.md` — единственный источник запретов
-6. `02-writing-system/CALIBRATION.md` — числовые нормы стиля
-7. `02-writing-system/VOICE-SYSTEM.md`
-8. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
-9. старый черновик в `90-archive/manuscript-drafts/` — только по событиям и миру
+2. `02-writing-system/AUTHOR-VOICE.md` — эталон голоса автора по калибровочным сценам (этап с 10.08.2026)
+3. `01-canon/project-bible.md`
+4. `01-canon/PROJECT-STATUS.md`
+5. `02-writing-system/PRIMARY-WORK-INSTRUCTION.md`
+6. `02-writing-system/HARD-BLOCKERS.md` — источник запретов (в части назидания уступает п. 2)
+7. `02-writing-system/CALIBRATION.md` — числовые нормы стиля
+8. `02-writing-system/VOICE-SYSTEM.md`
+9. `02-writing-system/WORKFLOW-AND-QUALITY-GATE.md`
+10. старый черновик в `90-archive/manuscript-drafts/` — только по событиям и миру
+
+**Текущий этап (с 10.08.2026):** приведение книги к видению автора — `03-manuscript/PLAN-author-vision.md`.
 
 ---
 
