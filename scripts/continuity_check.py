@@ -20,6 +20,7 @@ voice_drift.py (голос), и для canon_check.py (реестр фактов
   NGRAM          формулы, повторяющиеся между главами
   GLUED          слитно-раздельно: «наощупь»
   REFLECTION     осмысление, осевшее ниже действия (показывает, где смотреть)
+  UNSOURCED      точное время, которое POV нечем измерить (§3.3)
   TIMELINE       часы сцены подряд, для сверки глазом
 
 Три последние — не приговор, а список для чтения: решает человек.
@@ -314,6 +315,65 @@ def quote(p: str, a: int, b: int, pad: int = 45) -> str:
     return ("…" if a - pad > 0 else "") + s + ("…" if b + pad < len(p) else "")
 
 
+# ─────────────────────────────────────────────────────────────────────
+# UNSOURCED — точное число в наррации, которое POV нечем измерить
+# ─────────────────────────────────────────────────────────────────────
+# См. SKILL-writing-craft.md §3.3. Число в тексте от первого лица
+# законно, если героиня его сосчитала, отмерила телом, ей его назвали
+# или она знает его по профессии. Всё прочее — число из воздуха.
+#
+# Самый частый подкласс — минуты: в Минте время бьют колоколами,
+# часов у Сильвии нет, значит «через двадцать две минуты» она знать
+# не может.
+
+NUM_WORD = (
+    r"(?:одну|две|двух|три|трёх|четыре|четырёх|пять|пяти|шесть|шести|"
+    r"семь|семи|восемь|восьми|девять|девяти|десять|десяти|"
+    r"одиннадцать|двенадцать|четырнадцать|пятнадцать|двадцать|"
+    r"тридцать|сорок|пятьдесят|шестьдесят|\d+)"
+)
+TIME_UNIT = r"(?:минут\w*|секунд\w*|часа|часов)"
+
+# «через двадцать две минуты», «за четыре минуты», «на шесть минут»
+EXACT_TIME = re.compile(
+    rf"(?:через|за|на|ещё)?\s*\b{NUM_WORD}\s+{TIME_UNIT}\b", re.IGNORECASE
+)
+# инверсия «минут пять», «секунд десять» — это оценка на глаз, законна
+INVERTED = re.compile(rf"\b{TIME_UNIT}\s+{NUM_WORD}\b", re.IGNORECASE)
+# вилка «две-три секунды», «пять-шесть минут» — тоже оценка
+FORK = re.compile(rf"\b{NUM_WORD}\s*[-–—]\s*{NUM_WORD}\s+{TIME_UNIT}\b", re.IGNORECASE)
+
+# признаки законного источника числа в той же фразе
+SOURCED = re.compile(
+    r"(?:счита\w*|посчита\w*|насчита\w*|досчита\w*|пересчита\w*|"
+    r"мерил\w*|намерил\w*|отмерил\w*|"
+    r"около|примерно|приблизительно|где-то|навскидку|наверное|"
+    r"кажется|вроде|почти|с\s+лишним|с\s+небольшим|может|или)",
+    re.IGNORECASE,
+)
+
+
+def check_unsourced(paras: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    """Точные единицы времени в наррации без источника у POV."""
+    out = []
+    for ln, p in paras:
+        if p.startswith(("—", "«", "*", "#")):      # реплики и служебное
+            continue
+        for m in EXACT_TIME.finditer(p):
+            frag = m.group(0).strip()
+            if INVERTED.search(frag):
+                continue
+            lo0 = max(0, m.start() - 12)
+            if FORK.search(p[lo0:m.end()]):
+                continue
+            # окно вокруг числа: есть ли рядом счёт или хедж
+            lo, hi = max(0, m.start() - 90), min(len(p), m.end() + 60)
+            if SOURCED.search(p[lo:hi]):
+                continue
+            out.append((ln, f"«{frag}» — чем измерено? … {p[lo:hi].strip()[:110]}"))
+    return out
+
+
 def paragraphs(text: str) -> list[tuple[int, str]]:
     out = []
     for i, line in enumerate(text.split("\n"), 1):
@@ -423,6 +483,14 @@ def main() -> int:
             print(f"  {s}")
 
     if not args.quiet:
+        for fname, text in files.items():
+            uns = check_unsourced(paragraphs(text))
+            if uns:
+                print(f"\n=== UNSOURCED [{Path(fname).stem}]: {len(uns)}  "
+                      f"(точное время без источника у POV, §3.3)")
+                for ln, q in uns:
+                    print(f"  {ln}: {q}")
+
         for fname, text in files.items():
             refl = check_reflection(paragraphs(text))
             if refl:
