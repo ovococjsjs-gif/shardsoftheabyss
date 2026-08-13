@@ -16,7 +16,7 @@ voice_drift.py — детектор ухода от авторского гол�
 Не вырезать её парами: это съедает половину текста.
 
 Использование:
-    python3 scripts/voice_drift.py 03-manuscript/arc-05/ch-24.md
+    python3 scripts/voice_drift.py 03-manuscript/arc-05/ch-25.md
     python3 scripts/voice_drift.py --all
     python3 scripts/voice_drift.py --all --trend
 """
