@@ -51,7 +51,7 @@
 
 ```bash
 python3 scripts/canon_check.py 03-manuscript/arc-*/ch-*.md
-python3 scripts/canon_check.py --timeline --names 03-manuscript/arc-03/ch-15.md
+python3 scripts/canon_check.py --timeline --names 03-manuscript/arc-03/ch-16.md
 ```
 
 **Правило пополнения:** любое новое установленное число, имя или топоним идёт в `FACTS.tsv` **в тот же день**, когда попало в текст.
@@ -167,7 +167,7 @@ python3 scripts/guns_check.py --current 14
 3. поиск конструкций-паразитов главы: выписать те, что встретились больше двух раз;
 4. проверка финала сцены: не заканчивается ли она дважды.
 
-Найденные швы на книге: двойное прощание с Кайром (гл. 4), двойной финал (гл. 2), задвоенная усталость (гл. 13), два выхода из библиотеки (гл. 13).
+Найденные швы на книге: двойное прощание с Кайром (гл. 4), двойной финал (гл. 2), задвоенная усталость (гл. 14), два выхода из библиотеки (гл. 14).
 
 ---
 
@@ -213,11 +213,11 @@ python3 scripts/guns_check.py --current 14
 
 ```bash
 # полная проверка главы
-python3 scripts/style_guard.py  03-manuscript/arc-03/ch-15.md
-python3 scripts/canon_check.py  03-manuscript/arc-03/ch-15.md --timeline
-python3 scripts/knowledge_check.py 03-manuscript/arc-03/ch-15.md --auto
-python3 scripts/voice_stats.py  03-manuscript/arc-03/ch-15.md
-python3 scripts/tics.py         03-manuscript/arc-03/ch-15.md
+python3 scripts/style_guard.py  03-manuscript/arc-03/ch-16.md
+python3 scripts/canon_check.py  03-manuscript/arc-03/ch-16.md --timeline
+python3 scripts/knowledge_check.py 03-manuscript/arc-03/ch-16.md --auto
+python3 scripts/voice_stats.py  03-manuscript/arc-03/ch-16.md
+python3 scripts/tics.py         03-manuscript/arc-03/ch-16.md
 python3 scripts/guns_check.py   --current 14
 
 # вся книга
