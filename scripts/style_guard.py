@@ -197,7 +197,7 @@ def is_dialogue_line(line: str) -> bool:
     if s.startswith("*") and not s.startswith("**"):
         return True
     # Мысленный ответ Сильвии Тени: оформляется «ёлочками» отдельным абзацем.
-    # Дефект найден на главе 19: 30 таких реплик считались наррацией и
+    # Дефект найден на главе 20: 30 таких реплик считались наррацией и
     # завышали VERBLESS_DENSITY и долю коротких предложений.
     if s.startswith("«") and s.rstrip().endswith(("»", "».", "»?", "»!")):
         return True
