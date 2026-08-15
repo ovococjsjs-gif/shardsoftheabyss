@@ -1,0 +1,15 @@
+{
+  "name": "shardsoftheabyss",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Инструменты экспорта романа «Хроники Этериума — Осколки Бездны»",
+  "scripts": {
+    "export:docx": "node scripts/export_docx.js",
+    "export:docx:editorial": "node scripts/export_docx.js editorial",
+    "export:docx:reader": "node scripts/export_docx.js reader",
+    "validate:docx": "python3 scripts/validate_docx.py exports/*.docx"
+  },
+  "dependencies": {
+    "docx": "^9.5.1"
+  }
+}
