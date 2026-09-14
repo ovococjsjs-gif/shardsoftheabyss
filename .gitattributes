@@ -1,0 +1,17 @@
+# Author request: disable ALL textual diffs to reduce Arena UI overhead.
+# Applies to current and future files, including individual manuscript chapters.
+# Files remain tracked and readable; no content or history is removed.
+# Read full files normally. For an explicit local comparison of a TEXT file:
+#   git diff --text <base> <head> -- <path>
+# Do not force --text over the whole repository (it includes PDF/PNG/ZIP).
+# Arena may still show a changed-file list or use its own diff/cache behavior.
+# To restore normal textual diffs, remove the following rule in a normal commit.
+* -diff
+
+# GitHub-specific: collapse machine reports / duplicate assembled output.
+# This does not hide files from the tree and is not an Arena UI setting.
+projects/shards-of-the-abyss/review/**/*.json linguist-generated=true
+projects/shards-of-the-abyss/IMPORT.json linguist-generated=true
+projects/shards-of-the-abyss/reference/continuation-5246612/MANIFEST.json linguist-generated=true
+projects/shards-of-the-abyss/drafts/arc-02/arc-02-v3.md linguist-generated=true
+docs/*-check.json linguist-generated=true
